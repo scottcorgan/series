@@ -60,6 +60,8 @@ series(list)
   })
   .map(function (item, next) {
     next(null, item.age);
+  }, function (err, items) {
+    // Support for callbacks
   })
   .then(function (items) {
     // items now equals: [20, 25]
