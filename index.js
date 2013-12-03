@@ -1,4 +1,5 @@
 var Promise = require('promise');
+var drainer = require('drainer');
 
 var Chain = function () {
   var resolve;
@@ -11,55 +12,41 @@ var Chain = function () {
   
   chainInstance._queue = [];
   
-  chainInstance.drain = function () {
-    _runTask(chainInstance._queue);
-    
-    function _runTask (queue) {
-      var sequenceMethod = queue.shift();
-      
-      if (!sequenceMethod) return resolve(sequence._items);
-      
-      sequenceMethod.task.call(sequence, sequence._items, sequenceMethod.iterator, function  (err, items) {
-        sequence._items = items;
-        _runTask(queue);
-      });
-    }
+  chainInstance.drain = function (starter) {
+    chainInstance._queue.unshift(starter);
+    drainer(chainInstance._queue, function (err, items) {
+      if (err) return reject(err);
+      resolve(items);
+    });
   }.bind(sequence);
   
-  var sequence = function (list) {
-    
-    // Callback
-    if (typeof list === 'function') {
-      list(function (err, items) {
-        // if (err) return sequence.triggerError(err, [], 'start');
-        
-        sequence._items = items;
-        process.nextTick(chainInstance.drain);
-      });
+  var sequence = function (initialFn) {
+    if (typeof initialFn === 'object' && initialFn.length >= 0) {
+      var list = initialFn;
+      
+      initialFn = function (next) {
+        next(null, list);
+      };
     }
     
-    // Array
-    if (typeof list === 'object' && list.length >= 0) {
-      sequence._items = list;
-      process.nextTick(chainInstance.drain);
-    }
+    process.nextTick(function () {
+      chainInstance.drain(initialFn);
+    });
     
     return chainInstance;
   };
 
   sequence.add = function (name, task) {
-    chainInstance[name] = function (iterator) {
-      chainInstance._queue.push({
-        iterator: iterator,
-        task: task
+    chainInstance[name] = function (iterator, callback) {
+      chainInstance._queue.push(function (items, next) {
+        task.call(sequence, items, iterator, function (err, items) {
+          if (callback) callback(err, items);
+          next(err, items);
+        });
       });
       
       return chainInstance;
     }
-  };
-  
-  sequence.triggerError = function (err, item, fnName) {
-    // TODO: implement
   };
 
   return sequence;

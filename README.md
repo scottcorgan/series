@@ -63,7 +63,7 @@ series(list)
   })
   .then(function (items) {
     // items now equals: [20, 25]
-  }, function () {
+  }, function (err) {
     // oops, an error may have occured
   });
 ```
@@ -182,7 +182,6 @@ series(someValue)
 
 ## TODO
 
-* more detailed documentation
 * allow callbacks on each chained method
 * allow promises to be passed in as inititial value to series
 * **Series** module examples

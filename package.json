@@ -1,6 +1,6 @@
 {
   "name": "series",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Compose a series of chainable async methods",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,8 @@
     "async": "~0.2.9"
   },
   "dependencies": {
-    "promise": "~3.2.0"
+    "promise": "~3.2.0",
+    "drainer": "~0.1.0"
   },
   "keywords": [
     "chain",

@@ -18,7 +18,6 @@ series.add('filter', function (items, iterator, next) {
     iterator(item, function (err, matched) {
       if (err) {
         error = err;
-        return self.triggerError(err, item, 'filter');
       }
       
       callback(matched);
@@ -45,12 +44,16 @@ var list = [
 series(list)
   .filter(function (item, next) {
     next(null, item.age == 29);
+  }, function (err, items) {
+    console.log('filter callback', items);
   })
   .map(function (item, next) {
     next(null, item.name);
   })
   .then(function (items) {
     console.log('THEN:', items);
+  }, function (err) {
+    console.log('OOPS:', err);
   });
 
 
