@@ -148,7 +148,7 @@ series.add('map', function (items, iterator, next) {
 
 ## series sequence methods
 
-These methods are available on the value returned from called `series(someValue)`
+The methods available on the value returned from called `series(someValue)`
 
 The methods available vary according to which methods have been added to the series. In the usage example above, we've added `map`, `sortBy`, and `filter`. These methods would be available on the series as well as:
 
@@ -180,9 +180,32 @@ series(someValue)
   });
 ```
 
+## Callbacks
+
+Each method in the series can take a callback if you'd rather not use promises. Each callback will be called at the completion of each method.
+
+#### For Example:
+
+```js
+var Series = require('series');
+var series = Series();
+
+series(someValue)
+  .someChainableMethod(function (value, next) {
+    next(null, value + 's');
+  }, function (err, arg1) {
+    // arg1 == value + 's'
+  })
+  .someOtherMethod(function (value, next) {
+    next(null);
+  }, function (err) {
+    // err == null
+  })
+```
+
+
 ## TODO
 
-* allow callbacks on each chained method
 * allow promises to be passed in as inititial value to series
 * **Series** module examples
 
