@@ -1,6 +1,7 @@
 var Series = require('../');
 var series = Series();
 var async = require('async');
+var Promise = require('promise');
 
 series.add('each', function (items, iterator, next) {
   async.each(items, iterator, next);
@@ -38,10 +39,16 @@ var list = [
   }
 ];
 
+var listPromise = new Promise(function (resolve) {
+  resolve(list);
+});
+
+
 // series(function (next) {
 //   next(null, list);
 // })
-series(list)
+// series(list)
+series(listPromise)
   .filter(function (item, next) {
     next(null, item.age == 29);
   }, function (err, items) {

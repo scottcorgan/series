@@ -205,13 +205,6 @@ series(someValue)
   })
 ```
 
-
-## TODO
-
-* allow promises to be passed in as inititial value to series
-* **Series** module examples
-
-
 ## Run Tests
 
 ```

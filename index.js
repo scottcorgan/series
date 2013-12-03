@@ -20,20 +20,35 @@ var Chain = function () {
     });
   }.bind(sequence);
   
-  var sequence = function (initialFn) {
-    if (typeof initialFn === 'object' && initialFn.length >= 0) {
-      var list = initialFn;
-      
-      initialFn = function (next) {
-        next(null, list);
-      };
-    }
-    
+  var sequence = function (value) {
     process.nextTick(function () {
-      chainInstance.drain(initialFn);
+      chainInstance.drain(sequence._parseValue(value));
     });
     
     return chainInstance;
+  };
+  
+  sequence._parseValue = function (value) {
+    // Promise
+    if (value.then) {
+      var pr = value;
+      value = function (next) {
+        pr.then(function (list) {
+          next(null, list);
+        });
+      };
+    }
+    
+    // Array
+    if (typeof value === 'object' && value.length >= 0) {
+      var originalValue = value;
+      
+      value = function (next) {
+        next(null, originalValue);
+      };
+    }
+    
+    return value;
   };
 
   sequence.add = function (name, task) {
