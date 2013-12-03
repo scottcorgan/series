@@ -2,6 +2,8 @@
 
 Compose a series of chainable async methods. Supports callbacks AND promises.
 
+Supports Node and [Browserify](http://browserify.org/)
+
 ## Install
 
 ```
