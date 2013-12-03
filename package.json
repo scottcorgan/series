@@ -1,10 +1,10 @@
 {
   "name": "series",
-  "version": "0.0.0",
-  "description": "series ======",
+  "version": "0.2.0",
+  "description": "Compose a series of chainable async methods",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/.bin/mocha test/"
   },
   "repository": {
     "type": "git",
@@ -14,5 +14,18 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/scottcorgan/series/issues"
-  }
+  },
+  "devDependencies": {
+    "expect.js": "~0.2.0",
+    "mocha": "~1.14.0",
+    "async": "~0.2.9"
+  },
+  "dependencies": {
+    "promise": "~3.2.0"
+  },
+  "keywords": [
+    "chain",
+    "async",
+    "compose"
+  ]
 }
