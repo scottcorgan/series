@@ -74,7 +74,7 @@ series(list)
 
 The instance value returned from calling `Series()` is both a function and an object. The object is the instance and the function returns the series chain.
 
-`series()` supports the follow as initial values to start the series:
+`series()` supports the following as initial values to start the series:
 
 * **Primitive** - strings, numbers, etc.
 * **Array** - an array of primitives or objects
