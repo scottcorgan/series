@@ -79,6 +79,7 @@ The instance value returned from calling `Series()` is both a function and an ob
 * **Primitive** - strings, numbers, etc.
 * **Array** - an array of primitives or objects
 * **Function** - a function that is passed a `next` callback that must be called with the following: `next(err, value)`. The value passed as the second argument becomes the initial value of the series.
+* **Promise** - a [ Promises/A+](http://promises-aplus.github.io/promises-spec/) compliant value
 
 ###For example:
 
@@ -112,6 +113,20 @@ series(function (next) {
   var someValue = 'my value';
   next(null, someValue);
 });
+```
+
+**Promise**
+
+```js
+var Series = require('series');
+var Promise = require('promise'); // <~~ npm install promise 
+var series = Series();
+
+var promise = new Promise(function (resolve, reject) {
+  // Some logic
+});
+
+series(promise);
 ```
 
 ## instance methods
