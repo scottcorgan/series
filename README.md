@@ -1,6 +1,6 @@
 # Series
 
-Compose a series of chainable async methods.
+Compose a series of chainable async methods. Supports callbacks AND promises.
 
 ## Install
 
@@ -148,7 +148,7 @@ series.add('map', function (items, iterator, next) {
 
 ## series sequence methods
 
-The methods available on the value returned from called `series(someValue)`
+These methods are available on the value returned from calling `series(someValue)`
 
 The methods available vary according to which methods have been added to the series. In the usage example above, we've added `map`, `sortBy`, and `filter`. These methods would be available on the series as well as:
 
