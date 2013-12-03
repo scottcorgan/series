@@ -12,19 +12,19 @@ npm install series --save
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 var async = require('async'); // <~~ simply for usage example
 
-// Add methods to our chain sequence
-chain.add('map', function (items, iterator, next) {
+// Add methods to our series sequence
+series.add('map', function (items, iterator, next) {
   async.map(items, iterator, next);
 });
 
-chain.add('sortBy', function (items, iterator, next) {
+series.add('sortBy', function (items, iterator, next) {
   async.sortBy(items, iterator, next);
 });
 
-chain.add('filter', function (items, iterator, next) {
+series.add('filter', function (items, iterator, next) {
   var self = this;
   var error;
   
@@ -42,7 +42,7 @@ chain.add('filter', function (items, iterator, next) {
   });
 });
 
-// Use our chain
+// Use our series
 var list = [
   {
     name: 'John',
@@ -54,7 +54,7 @@ var list = [
   }
 ];
 
-chain(list)
+series(list)
   .sortBy(function (item, next) {
     next(null, item.age);
   })
@@ -68,15 +68,15 @@ chain(list)
   });
 ```
 
-## chain
+## series
 
-The instance value returned from calling `Series()` is both a function and an object. The object is the instance and the function returns the chain sequence.
+The instance value returned from calling `Series()` is both a function and an object. The object is the instance and the function returns the series sequence.
 
-`chain()` supports the follow as initial values to start the chain:
+`series()` supports the follow as initial values to start the series:
 
 * **Primitive** - strings, numbers, etc.
 * **Array** - an array of primitives or objects
-* **Function** - a function that is passed a `next` callback that must be called with the following: `next(err, value)`. The value passed as the second argument becomes the initial value of the chain.
+* **Function** - a function that is passed a `next` callback that must be called with the following: `next(err, value)`. The value passed as the second argument becomes the initial value of the series.
 
 ###For example:
 
@@ -84,29 +84,29 @@ The instance value returned from calling `Series()` is both a function and an ob
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 
 var someValue = 'my value';
-chain(someValue);
+series(someValue);
 ```
 
 **Array**
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 
 var someValue = [1,2,3,4,5];
-chain(someValue);
+series(someValue);
 ```
 
 **Function**
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 
-chain(function (next) {
+series(function (next) {
   var someValue = 'my value';
   next(null, someValue);
 });
@@ -114,11 +114,11 @@ chain(function (next) {
 
 ## instance methods
 
-These methods are available on the `chain` variable.
+These methods are available on the `series` variable.
 
 ### add(methodName, methodTask)
 
-Composes a chainable method on the chain. The method is added for all instances of that particular chain.
+Composes a chainable method on the series. The method is added for all instances of that particular series.
 
 **methodName**
 
@@ -128,7 +128,7 @@ A string that will be used as the method name
 
 A callback function that is passed the following parameters
 
-* `items` - any value that you would like passed to the first method in the chain
+* `items` - any value that you would like passed to the first method in the series
 * `iterator` - the method called on the value from the previous method that performs some sort of user defined operation
 * `next` - the callback once all items in the list or collection have been processed.
 
@@ -136,25 +136,25 @@ A callback function that is passed the following parameters
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 
-// Add methods to our chain sequence
-chain.add('map', function (items, iterator, next) {
+// Add methods to our series sequence
+series.add('map', function (items, iterator, next) {
   iterator(items, function (err, processItems) {
     next(err, processItems);
   });
 });
 ```
 
-## chain sequence methods
+## series sequence methods
 
-These methods are available on the value returned from called `chain(someValue)`
+These methods are available on the value returned from called `series(someValue)`
 
-The methods available vary according to which methods have been added to the chain. In the usage example above, we've added `map`, `sortBy`, and `filter`. These methods would be available on the chain as well as:
+The methods available vary according to which methods have been added to the series. In the usage example above, we've added `map`, `sortBy`, and `filter`. These methods would be available on the series as well as:
 
 ### then(successCallback, errorCallback)
 
-Each chain sequence returns a promise. Refer to the [Promises/A+](http://promises-aplus.github.io/promises-spec/) spec for more details.
+Each series sequence returns a promise. Refer to the [Promises/A+](http://promises-aplus.github.io/promises-spec/) spec for more details.
 
 **successCallback**
 
@@ -168,10 +168,10 @@ This is called if an error occurs anywhere when processing the initial value in 
 
 ```js
 var Series = require('series');
-var chain = Series();
+var series = Series();
 
 var someValue = 'my value';
-chain(someValue)
+series(someValue)
   .someChainableMethod(function (value, next) {
     next(null, value + 's');
   })
@@ -180,16 +180,11 @@ chain(someValue)
   });
 ```
 
-### drain()
-
-Runs each method in the chain b draining the chain queue on next tick.
-
-
 ## TODO
 
 * more detailed documentation
 * allow callbacks on each chained method
-* allow promises to be passed in as inititial value to chain
+* allow promises to be passed in as inititial value to series
 * **Series** module examples
 
 
