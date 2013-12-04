@@ -2,122 +2,151 @@ var Series = require('../');
 var series = Series();
 var async = require('async');
 var Promise = require('promise');
+var expect = require('expect.js');
+var sinon = require('sinon');
 
-series.add('each', function (items, iterator, next) {
-  async.each(items, iterator, next);
-});
-
-series.add('map', function (items, iterator, next) {
-  async.map(items, iterator, next);
-});
-
-series.add('filter', function (items, iterator, next) {
-  var self = this;
-  var error;
+describe('Series', function () {
+  var series;
   
-  async.filter(items, function (item, callback) {
-    iterator(item, function (err, matched) {
-      if (err) {
-        error = err;
-      }
-      
-      callback(matched);
+  beforeEach(function () {
+    series = Series();
+  });
+  
+  describe('#add()', function() {
+    it('adds a method to the sequence', function () {
+      series.add('method1', function () {});
+      expect(series([])).to.have.key('method1');
     });
-  }, function (filteredItems) {
-    next(error, filteredItems);
+    
+    it('provides the value to each method added to the sequence', function (done) {
+      var initialValue = ['my value'];
+      
+      series.add('method1', function (value, iterator, next) {
+        expect(value).to.eql(initialValue);
+        done();
+      });
+      
+      series(initialValue).method1();
+    });
+    
+    it('provides an iterator to each method add to the sequence', function (done) {
+      var originalIterator = function () {};
+      
+      series.add('method1', function (value, iterator) {
+        expect(originalIterator.toString()).to.equal(iterator.toString());
+        done();
+      });
+      
+      series([]).method1(originalIterator);
+    });
+    
+    it('requires series method to call the callback in order to proceed', function (done) {
+      var value = ['value'];
+      
+      series.add('method1', function (value, iterator, next) {
+        iterator(value, next);
+      });
+      
+      series(value).method1(function (value, next) {
+        next(null, value);
+      }).then(function (processedValue) {
+        expect(value).to.eql(processedValue);
+        done();
+      });
+    });
   });
 });
 
-var list = [
-  {
-    name: 'scott',
-    age: 29
-  },
-  {
-    name: 'lindsay',
-    age: 25
-  }
-];
-
-var listPromise = new Promise(function (resolve) {
-  resolve(list);
-});
-
-
-// series(function (next) {
-//   next(null, list);
-// })
-// series(list)
-series(listPromise)
-  .filter(function (item, next) {
-    next(null, item.age == 29);
-  }, function (err, items) {
-    console.log('filter callback', items);
-  })
-  .map(function (item, next) {
-    next(null, item.name);
-  })
-  .then(function (items) {
-    console.log('THEN:', items);
-  }, function (err) {
-    console.log('OOPS:', err);
+describe('#series()', function() {
+  var series;
+  
+  beforeEach(function () {
+    series = Series();
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//var Series = require('../');
-//var expect = require('expect.js');
-//
-//describe('Series', function () {
-//  var series;
-//
-//  beforeEach(function () {
-//     series = Series();
-//  });
-//
-//  it('Chain instance is a method', function () {
-//    expect(series).to.be.a('function');
-//  });
-//
-//  describe('#add()', function() {
-//    it('adds methods to the methods list with the given name', function () {
-//      series.add('method1');
-//      expect(series.getMethod('method1')).to.not.be(undefined);
-//    });
-//
-//    it('adds a method to the methods list with the given definition', function () {
-//      var method = function (next) {
-//        next();
-//      };
-//      series.add('method1', method);
-//
-//      expect(series.getMethod('method1')).to.be.a('function');
-//      expect(series.getMethod('method1').toString()).to.equal(method.toString());
-//    });
-//
-//    it('defaults to an empty method if no method definition is given', function () {
-//      series.add('method1');
-//      expect(series.getMethod('method1')).to.be.a('function');
-//    });
-//
-//    it('adds the method definition to the object series', function () {
-//      var method = function (next) {next();};
-//      series.add('method1', method);
-//
-//      expect(series().method1.toString()).to.equal(method.toString());
-//    });
-//  });
-//});
-//
-//
+  
+  it('fails quick on error', function (done) {
+    var spy = sinon.spy();
+    
+    series.add('method1', function (_value, iterator, next) {
+      next('ERROR');
+    });
+    
+    series.add('method2', function (_value, iterator, next) {
+      spy(); // This shouldn't get called
+      next(null, _value);
+    });
+    
+    series(['value1', 'value2'])
+      .method1()
+      .then(function () {}, function (err) {
+        expect(err).to.equal('ERROR');
+        expect(spy.called).to.equal(false);
+        done();
+      });
+  });
+  
+  it('accepts and then calls a callback on each method in the sequence', function (done) {
+    series.add('method1', function (_value, iterator, next) {
+      next(null, _value);
+    });
+    
+    series([1,2]).method1(function () {}, function (err, _value) {
+      expect(_value).to.eql([1,2]);
+      expect(err).to.equal(null);
+      done();
+    });
+  });
+  
+  it('returns a promise at the end of the method sequence', function () {
+    series.add('method1', function (_value, iterator, next) {});
+    expect(series([1])).to.have.key('then');
+  });
+  
+  describe('initial value type', function() {
+    var value = ['value1', 'value2'];
+    var valueStr = 'value';
+    var valueNum = 3;
+    
+    
+    // FIX ME: doesn't support strings yet
+    it.skip('supports strings', function (done) {
+      series(valueStr).then(function (processedValue) {
+        expect(valueStr).to.equal(processedValue);
+      });
+    });
+    
+    // FIX ME: doesn't support strings yet
+    it.skip('supports numbers', function (done) {
+      series(valueNum).then(function (processedValue) {
+        expect(valueNum).to.equal(processedValue);
+      });
+    });
+    
+    it('supports arrays', function (done) {
+      series(value).then(function (processedValue) {
+        expect(value).to.eql(processedValue);
+        done();
+      })
+    });
+    
+    it('supports a callback', function (done) {
+      series(function (next) {
+        next(null, value);
+      }).then(function (processedValue) {
+        expect(value).to.eql(processedValue);
+        done();
+      });
+    });
+    
+    it('supports promises', function (done) {
+      var promise = new Promise(function (resolve) {
+        resolve(value);
+      });
+      
+      series(promise).then(function (processedValue) {
+        expect(value).to.eql(processedValue);
+        done();
+      });
+    });
+  });
+});

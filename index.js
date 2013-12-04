@@ -18,7 +18,7 @@ var Chain = function () {
       if (err) return reject(err);
       resolve(items);
     });
-  }.bind(sequence);
+  };
   
   var sequence = function (value) {
     process.nextTick(function () {
