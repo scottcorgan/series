@@ -104,21 +104,22 @@ describe('#series()', function() {
   
   describe('initial value type', function() {
     var value = ['value1', 'value2'];
-    var valueStr = 'value';
+    var valueStr = 'string value';
     var valueNum = 3;
     
-    
     // FIX ME: doesn't support strings yet
-    it.skip('supports strings', function (done) {
+    it('supports strings', function (done) {
       series(valueStr).then(function (processedValue) {
         expect(valueStr).to.equal(processedValue);
+        done();
       });
     });
     
     // FIX ME: doesn't support strings yet
-    it.skip('supports numbers', function (done) {
+    it('supports numbers', function (done) {
       series(valueNum).then(function (processedValue) {
         expect(valueNum).to.equal(processedValue);
+        done();
       });
     });
     

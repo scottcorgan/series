@@ -1,10 +1,10 @@
 {
   "name": "series",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Compose a series of chainable async methods",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha test/"
+    "test": "node_modules/.bin/mocha test/ --reporter spec"
   },
   "repository": {
     "type": "git",

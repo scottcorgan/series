@@ -13,6 +13,7 @@ var Chain = function () {
   chainInstance._queue = [];
   
   chainInstance.drain = function (starter) {
+    
     chainInstance._queue.unshift(starter);
     drainer(chainInstance._queue, function (err, items) {
       if (err) return reject(err);
@@ -29,28 +30,23 @@ var Chain = function () {
   };
   
   sequence._parseValue = function (value) {
+    if (typeof value === 'function') return value;
+    
     // Promise
     if (value.then) {
-      var pr = value;
-      value = function (next) {
-        pr.then(function (list) {
+      return function (next) {
+        value.then(function (list) {
           next(null, list);
         });
       };
     }
     
-    // Array
-    if (typeof value === 'object' && value.length >= 0) {
-      var originalValue = value;
-      
-      value = function (next) {
-        next(null, originalValue);
-      };
-    }
-    
-    return value;
+    // String, Number, or any primitive
+    return  function (next) {
+      next(null, value);
+    };
   };
-
+  
   sequence.add = function (name, task) {
     chainInstance[name] = function (iterator, callback) {
       chainInstance._queue.push(function (items, next) {
